@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#08090d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Doomsday">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>DOOMSDAY — Avengers Countdown</title>
+<style>
+:root{--green:#9be36b;--lime:#c5ff86;--muted:#a7a9b2;--panel:rgba(17,20,26,.76)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;color:#f5f5f2;background:#08090d;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(ellipse at 50% 15%,rgba(109,166,75,.22),transparent 38%),radial-gradient(ellipse at 80% 80%,rgba(32,82,58,.17),transparent 38%),linear-gradient(135deg,#08090d 0%,#11151a 48%,#08090d 100%)}
+body:after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.14;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:46px 46px;mask-image:linear-gradient(to bottom,black,transparent 85%)}
+
+.tabs{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:0 auto 32px}
+.tab{cursor:pointer;border:1px solid rgba(200,255,180,.2);background:rgba(17,20,26,.7);color:#aeb4ad;border-radius:999px;padding:12px 18px;font-size:.72rem;font-weight:850;letter-spacing:.1em;transition:.2s}
+.tab.active{color:#10150e;background:var(--green);border-color:var(--green);box-shadow:0 0 25px rgba(155,227,107,.2)}
+.tab:focus-visible{outline:2px solid white;outline-offset:3px}
+header{width:min(1120px,92%);margin:auto;padding:28px 0;display:flex;justify-content:space-between;align-items:center}
+.brand{font-weight:900;letter-spacing:.18em;font-size:.85rem}.brand span{color:var(--green)}
+.status{font-size:.72rem;letter-spacing:.16em;color:var(--green);border:1px solid rgba(155,227,107,.35);padding:9px 12px;border-radius:99px;background:rgba(155,227,107,.06)}
+main{width:min(1000px,92%);margin:0 auto;text-align:center;padding:6vh 0 70px}
+.eyebrow{color:var(--green);font-size:.75rem;letter-spacing:.34em;font-weight:800;margin:35px 0 18px}
+h1{font-size:clamp(3rem,10vw,7.8rem);line-height:.88;letter-spacing:-.075em;margin:0;font-weight:950;text-transform:uppercase;text-shadow:0 10px 55px rgba(155,227,107,.12)}
+h1 .second{display:block;color:var(--green);text-shadow:0 0 35px rgba(155,227,107,.25)}
+.subtitle{color:#c3c6c4;font-size:clamp(.95rem,2vw,1.12rem);margin:25px auto 42px;max-width:540px;line-height:1.7}
+.countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:790px;margin:0 auto}
+.unit{background:linear-gradient(145deg,rgba(28,34,36,.9),rgba(12,15,18,.88));border:1px solid rgba(200,255,180,.15);border-radius:18px;padding:25px 10px 20px;box-shadow:0 18px 60px rgba(0,0,0,.25);position:relative;overflow:hidden}
+.unit:before{content:"";position:absolute;inset:0 0 auto;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent);opacity:.75}
+.number{font-variant-numeric:tabular-nums;font-size:clamp(2.5rem,7vw,5rem);font-weight:850;letter-spacing:-.06em;line-height:1.1}
+.label{font-size:.68rem;letter-spacing:.22em;color:var(--muted);margin-top:12px;font-weight:800}
+.release{margin:28px auto 0;color:#e4e7e1;font-size:.9rem;letter-spacing:.12em}
+.release strong{color:var(--lime)}
+.progress-wrap{max-width:530px;margin:34px auto 0;text-align:left}
+.progress-label{display:flex;justify-content:space-between;color:#aeb4ad;font-size:.72rem;letter-spacing:.12em;margin-bottom:10px}
+.track{height:5px;background:#252b2b;border-radius:9px;overflow:hidden}
+.bar{height:100%;width:0;background:linear-gradient(90deg,#5d9e4d,var(--lime));box-shadow:0 0 16px rgba(197,255,134,.6);transition:width .5s}
+.bottom{margin:70px auto 0;padding:25px 20px;border-top:1px solid rgba(255,255,255,.1);max-width:720px;color:#858b88;font-size:.78rem;line-height:1.7}
+.bottom a{color:var(--green);text-decoration:none}.bottom a:hover{text-decoration:underline}
+.symbol{font-size:1.4rem;color:var(--green);margin-bottom:12px}
+@media(max-width:560px){header{padding:20px 0}.countdown{grid-template-columns:repeat(2,1fr);gap:10px}.unit{padding:20px 8px 16px;border-radius:14px}.eyebrow{margin-top:24px}.subtitle{margin-bottom:30px}.bottom{margin-top:48px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">MARVEL<span> // </span>COUNTDOWN</div>
+  <div class="status">● COUNTDOWN ACTIVE</div>
+</header>
+<main>
+  <nav class="tabs" aria-label="Countdown selection">
+    <button class="tab active" id="doomTab" type="button" aria-selected="true">AVENGERS: DOOMSDAY</button>
+    <button class="tab" id="yearTab" type="button" aria-selected="false">NEW YEAR 2027</button>
+  </nav>
+  <div class="eyebrow" id="eyebrow">THE MULTIVERSE WILL COLLIDE</div>
+  <h1 id="mainTitle">AVENGERS<span class="second">DOOMSDAY</span></h1>
+  <p class="subtitle" id="subtitle">The wait is almost over. The Avengers, Fantastic Four, X-Men and more face a threat unlike anything before.</p>
+
+  <section class="countdown" aria-label="Countdown to Avengers Doomsday">
+    <div class="unit"><div class="number" id="days">000</div><div class="label">DAYS</div></div>
+    <div class="unit"><div class="number" id="hours">00</div><div class="label">HOURS</div></div>
+    <div class="unit"><div class="number" id="minutes">00</div><div class="label">MINUTES</div></div>
+    <div class="unit"><div class="number" id="seconds">00</div><div class="label">SECONDS</div></div>
+  </section>
+
+  <div class="release" id="releaseText">IN THEATERS <strong>DECEMBER 18, 2026</strong></div>
+  <div class="progress-wrap">
+    <div class="progress-label"><span>TIME UNTIL DOOMSDAY</span><span id="percent">LOADING</span></div>
+    <div class="track"><div class="bar" id="bar"></div></div>
+  </div>
+
+  <div class="bottom">
+    <div class="symbol">✦</div>
+    <div id="footerLine">ONE TIMELINE. COUNTLESS WORLDS. ONE DOOMSDAY.</div>
+    <p id="footerNote">Release date shown is December 18, 2026. The countdown uses your device's local time.</p>
+    <a id="officialLink" href="https://movies.disney.com/avengers-doomsday" target="_blank" rel="noopener">Official movie details ↗</a>
+  </div>
+</main>
+<script>
+(() => {
+  "use strict";
+  const targets = {
+    doom: new Date(2026, 11, 18, 0, 0, 0),
+    year: new Date(2027, 0, 1, 0, 0, 0)
+  };
+  const $ = id => document.getElementById(id);
+  const pad = value => String(value).padStart(2, "0");
+  let mode = "doom";
+
+  const pages = {
+    doom: {
+      eyebrow: "THE MULTIVERSE WILL COLLIDE",
+      title: 'AVENGERS<span class="second">DOOMSDAY</span>',
+      subtitle: "The wait is almost over. The Avengers, Fantastic Four, X-Men and more face a threat unlike anything before.",
+      release: 'IN THEATERS <strong>DECEMBER 18, 2026</strong>',
+      footer: "ONE TIMELINE. COUNTLESS WORLDS. ONE DOOMSDAY.",
+      note: "Counting down to December 18, 2026 using your iPhone's local time.",
+      done: "THE DAY HAS ARRIVED",
+      doneSubtitle: "Avengers: Doomsday is here. It's time!",
+      doneFooter: "THE MULTIVERSE HAS CHANGED."
+    },
+    year: {
+      eyebrow: "A NEW CHAPTER IS ABOUT TO BEGIN",
+      title: 'NEW YEAR<span class="second">2027</span>',
+      subtitle: "A fresh year. New memories. New adventures. Let the countdown begin.",
+      release: 'WELCOME TO <strong>JANUARY 1, 2027</strong>',
+      footer: "3... 2... 1... HAPPY NEW YEAR!",
+      note: "Counting down to January 1, 2027 at midnight using your iPhone's local time.",
+      done: "HAPPY NEW YEAR!",
+      doneSubtitle: "Welcome to 2027. Here's to a brilliant year ahead.",
+      doneFooter: "HELLO, 2027!"
+    }
+  };
+
+  function renderMode(next) {
+    mode = next;
+    const page = pages[mode];
+    $("doomTab").classList.toggle("active", mode === "doom");
+    $("yearTab").classList.toggle("active", mode === "year");
+    $("doomTab").setAttribute("aria-selected", String(mode === "doom"));
+    $("yearTab").setAttribute("aria-selected", String(mode === "year"));
+    $("eyebrow").textContent = page.eyebrow;
+    $("mainTitle").innerHTML = page.title;
+    $("subtitle").textContent = page.subtitle;
+    $("releaseText").innerHTML = page.release;
+    $("footerLine").textContent = page.footer;
+    $("footerNote").textContent = page.note;
+    $("officialLink").hidden = mode !== "doom";
+    $("officialLink").style.display = mode === "doom" ? "inline" : "none";
+    tick();
+  }
+
+  function tick() {
+    const now = new Date();
+    const target = targets[mode];
+    let remaining = Math.max(0, target.getTime() - now.getTime());
+
+    if (remaining === 0) {
+      $("days").textContent = "000";
+      $("hours").textContent = "00";
+      $("minutes").textContent = "00";
+      $("seconds").textContent = "00";
+      $("eyebrow").textContent = pages[mode].done;
+      $("subtitle").textContent = pages[mode].doneSubtitle;
+      $("footerLine").textContent = pages[mode].doneFooter;
+      $("percent").textContent = mode === "year" ? "WELCOME 2027" : "IT'S DOOMSDAY";
+      $("bar").style.width = "100%";
+      return;
+    }
+
+    const days = Math.floor(remaining / 86400000);
+    remaining %= 86400000;
+    const hours = Math.floor(remaining / 3600000);
+    remaining %= 3600000;
+    const minutes = Math.floor(remaining / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
+
+    $("days").textContent = String(days).padStart(3, "0");
+    $("hours").textContent = pad(hours);
+    $("minutes").textContent = pad(minutes);
+    $("seconds").textContent = pad(seconds);
+
+    const periodStart = mode === "doom"
+      ? new Date(2026, 0, 1, 0, 0, 0)
+      : targets.doom;
+    const span = target.getTime() - periodStart.getTime();
+    const elapsed = now.getTime() - periodStart.getTime();
+    const progress = Math.max(0, Math.min(100, elapsed / span * 100));
+    $("bar").style.width = progress.toFixed(3) + "%";
+    $("percent").textContent = progress.toFixed(1) + "%";
+  }
+
+  $("doomTab").addEventListener("click", () => renderMode("doom"));
+  $("yearTab").addEventListener("click", () => renderMode("year"));
+  renderMode("doom");
+  window.setInterval(tick, 1000);
+})();
+</script>
+<script>
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./service-worker.js").catch(() => {}));
+}
+</script>
+</body>
+</html>
